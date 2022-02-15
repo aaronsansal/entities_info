@@ -1,0 +1,6 @@
+entities_info.entities_info_export:
+  title: 'Entities info export'
+  route_name: entities_info.entities_info_export_form
+  description: 'Form to export entities information'
+  parent: system.admin_config
+  weight: 99

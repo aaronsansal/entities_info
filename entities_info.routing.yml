@@ -1,0 +1,18 @@
+entities_info.entities_info_export_form:
+  path: '/entities_info'
+  defaults:
+    _form: '\Drupal\entities_info\Form\EntitiesInfoExportForm'
+    _title: 'Entities Info Export'
+  requirements:
+    _access: 'TRUE'
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE
+
+entities_info.entities_info_export_controller_export:
+  path: '/entities_info/export'
+  defaults:
+    _controller: '\Drupal\entities_info\Controller\EntitiesInfoExportController::export'
+    _title: 'Entities info'
+  requirements:
+    _permission: 'access content'

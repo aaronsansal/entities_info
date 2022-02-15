@@ -1,0 +1,13 @@
+{
+    "name": "entities_info",
+    "type": "drupal-module",
+    "description": "Generate informartion about entities to export it.",
+    "keywords": [
+    ],
+    "homepage": "https://www.drupal.org/project/entities_info",
+    "minimum-stability": "dev",
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/entities_info",
+        "source": "http://cgit.drupalcode.org/entities_info",
+    },
+}

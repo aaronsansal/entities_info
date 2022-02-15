@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * @file
+ * Contains entities_info.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function entities_info_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the entities_info module.
+    case 'help.page.entities_info':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Generate informartion about entities to export it.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function entities_info_theme() {
+  return [
+    'entities_info' => [
+      'render element' => 'children',
+      'variables' => [
+        'tables' => NULL,
+      ]
+    ],
+  ];
+}
