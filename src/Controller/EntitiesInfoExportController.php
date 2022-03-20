@@ -50,50 +50,38 @@ class EntitiesInfoExportController extends ControllerBase {
    *   Return render array.
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function export(): array {
 
     $tempstore = $this->tempStoreFactory->get('entities_info_export');
     $params = $tempstore->get('values');
 
-    $entities_fields = array_map(function($item) {
+    $entities_fields = $this->getEntitiesFields($params);
+
+    return [
+      '#theme' => 'entities_info',
+      '#tables' => $entities_fields,
+    ];
+  }
+
+  /**
+   * @param $params
+   *
+   * @return array
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function getEntitiesFields($params): array {
+    return array_map(function($item) {
 
       [$bundle, $entity_id] = explode('-', $item);
+
       $entity_id_of = $this->entityTypeManager->getDefinition($entity_id)->getBundleOf();
       $entity_id = $entity_id_of != FALSE ? $entity_id_of : $entity_id;
 
-      $fields_map = $this->entityFieldManager->getFieldMap();
+      $fields = $this->entityFieldManager->getFieldDefinitions($entity_id, $bundle);
+      $fields = array_filter($fields, fn($field) => $field instanceof FieldConfig);
 
-      if (array_key_exists($entity_id, $fields_map)) {
-
-        $fields = $this->entityFieldManager->getFieldDefinitions($entity_id, $bundle);
-        $fields = array_filter($fields, fn($field) => $field instanceof FieldConfig);
-
-        return array_map(function($field) {
-          return [
-            'field_name' => $field->getName(),
-            'label' => $field->getLabel(),
-            'field_type' => $field->getType(),
-            'required' => $field->isRequired(),
-            'description' => $field->getDescription(),
-          ];
-        }, $fields);
-
-      } else {
-        $entity = $this->entityTypeManager->getStorage($entity_id);
-        $entity2 = $this->entityTypeManager->getDefinition($entity_id);
-        $fields = $this->entityTypeManager->getStorage($entity_id)->load($bundle);
-        return [];
-      }
-
-    }, $params);
-
-    /*$entities_fields = array_map(fn($fields) =>
-      array_filter($fields, fn($field) => $field instanceof FieldConfig), $entities_fields);*/
-
-    /*$values = array_map(fn($fields) =>
-      array_map(function($field) {
+      return array_map(function($field) {
         return [
           'field_name' => $field->getName(),
           'label' => $field->getLabel(),
@@ -101,12 +89,9 @@ class EntitiesInfoExportController extends ControllerBase {
           'required' => $field->isRequired(),
           'description' => $field->getDescription(),
         ];
-      }, $fields), $entities_fields);*/
+      }, $fields);
 
-    return [
-      '#theme' => 'entities_info',
-      '#tables' => $entities_fields,
-    ];
+    }, $params);
   }
 
 }

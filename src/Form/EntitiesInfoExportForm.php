@@ -19,6 +19,13 @@ class EntitiesInfoExportForm extends FormBase {
   protected $entityTypeManager;
 
   /**
+   * Drupal\Core\Entity\EntityFieldManagerInterface definition.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
+
+  /**
    * Drupal\Core\TempStore\PrivateTempStoreFactory definition.
    *
    * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
@@ -31,6 +38,7 @@ class EntitiesInfoExportForm extends FormBase {
   public static function create(ContainerInterface $container) {
     $instance = parent::create($container);
     $instance->entityTypeManager = $container->get('entity_type.manager');
+    $instance->entityFieldManager = $container->get('entity_field.manager');
     $instance->tempStoreFactory = $container->get('tempstore.private');
     return $instance;
   }
@@ -48,6 +56,7 @@ class EntitiesInfoExportForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
 
     $entities = $this->entityTypeManager->getDefinitions();
+    $fields_map = array_keys($this->entityFieldManager->getFieldMap());
 
     foreach ($entities as $entity) {
 
@@ -55,8 +64,14 @@ class EntitiesInfoExportForm extends FormBase {
         continue;
       }
 
-      $bundle = $entity->getBundleLabel();
       $entity_id = $entity->id();
+      $bundle_of = $entity->getBundleOf();
+
+      if (!in_array($entity_id, $fields_map) && !in_array($bundle_of, $fields_map)) {
+        continue;
+      }
+
+      $bundle = $entity->getBundleLabel();
       $storage = $this->entityTypeManager->getStorage($entity_id)->loadMultiple();
 
       $form['configuration_' . $entity_id] = [
@@ -90,9 +105,6 @@ class EntitiesInfoExportForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    foreach ($form_state->getValues() as $key => $value) {
-
-    }
     parent::validateForm($form, $form_state);
   }
 
@@ -113,7 +125,6 @@ class EntitiesInfoExportForm extends FormBase {
     $tempstore->set('values', $values);
 
     $form_state->setRedirect('entities_info.entities_info_export_controller_export');
-
   }
 
 }

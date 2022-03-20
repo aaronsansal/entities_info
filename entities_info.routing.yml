@@ -16,3 +16,5 @@ entities_info.entities_info_export_controller_export:
     _title: 'Entities info'
   requirements:
     _permission: 'access content'
+  options:
+    _admin_route: TRUE

@@ -8,6 +8,6 @@
     "minimum-stability": "dev",
     "support": {
         "issues": "https://www.drupal.org/project/issues/entities_info",
-        "source": "http://cgit.drupalcode.org/entities_info",
-    },
+        "source": "http://cgit.drupalcode.org/entities_info"
+    }
 }
