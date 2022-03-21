@@ -16,7 +16,7 @@ function entities_info_help($route_name, RouteMatchInterface $route_match) {
     case 'help.page.entities_info':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('Generate informartion about entities to export it.') . '</p>';
+      $output .= '<p>' . t('Generate information about entities to export it.') . '</p>';
       return $output;
 
     default:
@@ -32,7 +32,7 @@ function entities_info_theme() {
       'render element' => 'children',
       'variables' => [
         'tables' => NULL,
-      ]
+      ],
     ],
   ];
 }

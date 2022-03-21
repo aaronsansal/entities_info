@@ -1,4 +1,6 @@
-<!-- Add you custom twig html here -->
-<div>
-  {{ dump(tables) }}
+<div class="entities-info">
+  {% for table in tables %}
+    <h3>{{ table['#name'] }}</h3>
+    {{ table }}
+  {% endfor %}
 </div>

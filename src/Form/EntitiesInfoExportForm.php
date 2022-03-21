@@ -76,7 +76,7 @@ class EntitiesInfoExportForm extends FormBase {
 
       $form['configuration_' . $entity_id] = [
         '#type' => 'details',
-        '#title' => $this->t($bundle),
+        '#title' => $bundle,
         '#open' => FALSE,
       ];
 
@@ -105,7 +105,7 @@ class EntitiesInfoExportForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
+
   }
 
   /**
