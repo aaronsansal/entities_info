@@ -1,13 +1,25 @@
 {
-    "name": "entities_info",
+    "name": "drupal/entities_info",
     "type": "drupal-module",
-    "description": "Generate informartion about entities to export it.",
+    "description": "Generate information about entities to export it.",
     "keywords": [
+        "Drupal",
+        "Entities",
+        "Info"
     ],
     "homepage": "https://www.drupal.org/project/entities_info",
-    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Aaron Sanchez (asanchezs)",
+            "homepage": "https://www.drupal.org/u/asanchezs",
+            "role": "Maintainer"
+        }
+    ],
     "support": {
         "issues": "https://www.drupal.org/project/issues/entities_info",
         "source": "http://cgit.drupalcode.org/entities_info"
+    },
+    "require": {
+        "drupal/core": "^9.0 || ^10.0"
     }
 }
