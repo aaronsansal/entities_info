@@ -3,6 +3,9 @@
 namespace Drupal\entities_info\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\TempStore\PrivateTempStoreFactory;
 use Drupal\field\Entity\FieldConfig;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -13,29 +16,23 @@ class EntitiesInfoExportController extends ControllerBase {
 
   /**
    * Drupal\Core\Entity\EntityTypeManagerInterface definition.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityTypeManager;
+  protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * Drupal\Core\Entity\EntityFieldManagerInterface definition.
-   *
-   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
-  protected $entityFieldManager;
+  protected EntityFieldManagerInterface $entityFieldManager;
 
   /**
    * Drupal\Core\TempStore\PrivateTempStoreFactory definition.
-   *
-   * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
    */
-  private $tempStoreFactory;
+  private PrivateTempStoreFactory $tempStoreFactory;
 
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): EntitiesInfoExportController {
     $instance = parent::create($container);
     $instance->entityTypeManager = $container->get('entity_type.manager');
     $instance->entityFieldManager = $container->get('entity_field.manager');
@@ -50,6 +47,7 @@ class EntitiesInfoExportController extends ControllerBase {
    *   Return render array.
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function export(): array {
 
@@ -87,6 +85,10 @@ class EntitiesInfoExportController extends ControllerBase {
       $fields = $this->entityFieldManager->getFieldDefinitions($entity_id, $bundle);
       $fields = array_filter($fields, fn($field) => $field instanceof FieldConfig);
 
+      if (!$fields) {
+        return FALSE;
+      }
+
       return array_map(function ($field) {
         return [
           'field_name' => $field->getName(),
@@ -108,9 +110,22 @@ class EntitiesInfoExportController extends ControllerBase {
    *
    * @return array|array[]
    *   Table render array for every entity.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function createTables(array $entities): array {
     return array_map(function ($index, $entity) {
+
+      [$bundle, $entity_id] = explode('-', $index);
+      $label = $this->entityTypeManager->getStorage($entity_id)->load($bundle)->label();
+
+      if ($entity == FALSE) {
+        return [
+          '#name' => $label,
+          '#markup' => '<p>'.$this->t('There is not fields created.').'</p>'
+        ];
+      }
 
       $header = [
         'field_name' => t('Field name'),
@@ -120,19 +135,15 @@ class EntitiesInfoExportController extends ControllerBase {
         'description' => t('Description'),
       ];
 
-      $rows = [];
-      foreach ($entity as $field) {
-        $rows[] = [
+      $rows = array_map(function ($field) {
+        return [
           $field['field_name'],
           $field['label'],
           $field['field_type'],
-          $field['required'],
+          $this->t($field['required']),
           $field['description'],
         ];
-      }
-
-      [$bundle, $entity_id] = explode('-', $index);
-      $label = $this->entityTypeManager->getStorage($entity_id)->load($bundle)->label();
+      }, $entity);
 
       return [
         '#type' => 'table',
