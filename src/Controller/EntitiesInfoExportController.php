@@ -16,16 +16,22 @@ class EntitiesInfoExportController extends ControllerBase {
 
   /**
    * Drupal\Core\Entity\EntityTypeManagerInterface definition.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * Drupal\Core\Entity\EntityFieldManagerInterface definition.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
   protected EntityFieldManagerInterface $entityFieldManager;
 
   /**
    * Drupal\Core\TempStore\PrivateTempStoreFactory definition.
+   *
+   * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
    */
   private PrivateTempStoreFactory $tempStoreFactory;
 
@@ -65,7 +71,7 @@ class EntitiesInfoExportController extends ControllerBase {
   }
 
   /**
-   * Get FieldConfigs from entities.
+   * Get FieldConfigs created from entities.
    *
    * @param array $params
    *   Entities.
@@ -94,7 +100,7 @@ class EntitiesInfoExportController extends ControllerBase {
           'field_name' => $field->getName(),
           'label' => $field->getLabel(),
           'field_type' => $field->getType(),
-          'required' => $field->isRequired() == 1 ? 'Yes' : 'No',
+          'required' => $field->isRequired() == 1 ? "Yes" : "No",
           'description' => $field->getDescription(),
         ];
       }, $fields);
@@ -123,17 +129,9 @@ class EntitiesInfoExportController extends ControllerBase {
       if ($entity == FALSE) {
         return [
           '#name' => $label,
-          '#markup' => '<p>'.$this->t('There is not fields created.').'</p>'
+          '#markup' => '<p>' . $this->t('There is not fields created.') . '</p>',
         ];
       }
-
-      $header = [
-        'field_name' => t('Field name'),
-        'label' => t('Label'),
-        'field_type' => t('Field type'),
-        'required' => t('Required'),
-        'description' => t('Description'),
-      ];
 
       $rows = array_map(function ($field) {
         return [
@@ -147,11 +145,27 @@ class EntitiesInfoExportController extends ControllerBase {
 
       return [
         '#type' => 'table',
-        '#header' => $header,
+        '#header' => $this->getTableHeaders(),
         '#rows' => $rows,
         '#name' => $label,
       ];
     }, array_keys($entities), $entities);
+  }
+
+  /**
+   * Table headers.
+   *
+   * @return array
+   *   Field information labels.
+   */
+  public function getTableHeaders(): array {
+    return [
+      'field_name' => t('Field name'),
+      'label' => t('Label'),
+      'field_type' => t('Field type'),
+      'required' => t('Required'),
+      'description' => t('Description'),
+    ];
   }
 
 }
