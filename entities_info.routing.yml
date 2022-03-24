@@ -18,3 +18,11 @@ entities_info.entities_info_export_controller_export:
     _permission: 'access content'
   options:
     _admin_route: TRUE
+
+entities_info.export_pdf:
+  path: '/entities_info/export/pdf'
+  defaults:
+    _controller: '\Drupal\entities_info\Controller\ExportPdfController::exportPdf'
+    _title: 'exportPdf'
+  requirements:
+    _permission: 'access content'

@@ -96,6 +96,10 @@ class EntitiesInfoExportForm extends FormBase {
       }
     }
 
+    $form['error'] = [
+      '#type' => 'hidden',
+    ];
+
     $form['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Export info'),
@@ -108,6 +112,12 @@ class EntitiesInfoExportForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    $results = $form_state->getValues();
+    $values_selected = array_filter($results, fn($value) => $value === 1);
+
+    if (!$values_selected) {
+      $form_state->setError($form['error'], $this->t('Select at least one option.'));
+    }
 
   }
 

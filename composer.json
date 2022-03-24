@@ -20,6 +20,6 @@
         "source": "http://cgit.drupalcode.org/entities_info"
     },
     "require": {
-        "drupal/core": "^9.0 || ^10.0"
+        "mpdf/mpdf": "^8.0"
     }
 }

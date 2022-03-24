@@ -54,6 +54,7 @@ class EntitiesInfoExportController extends ControllerBase {
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Core\TempStore\TempStoreException
    */
   public function export(): array {
 
@@ -63,11 +64,14 @@ class EntitiesInfoExportController extends ControllerBase {
     $entities_fields = $this->getEntitiesFields($params);
     $tables = $this->createTables($entities_fields);
 
-    return [
+    $export = [
       '#theme' => 'entities_info',
       '#tables' => $tables,
     ];
 
+    $tempstore->set('export', $export);
+
+    return $export;
   }
 
   /**
@@ -100,7 +104,7 @@ class EntitiesInfoExportController extends ControllerBase {
           'field_name' => $field->getName(),
           'label' => $field->getLabel(),
           'field_type' => $field->getType(),
-          'required' => $field->isRequired() == 1 ? "Yes" : "No",
+          'required' => $field->isRequired() == 1 ? $this->t("Yes") : $this->t("No"),
           'description' => $field->getDescription(),
         ];
       }, $fields);
@@ -138,7 +142,7 @@ class EntitiesInfoExportController extends ControllerBase {
           $field['field_name'],
           $field['label'],
           $field['field_type'],
-          $this->t($field['required']),
+          $field['required'],
           $field['description'],
         ];
       }, $entity);
