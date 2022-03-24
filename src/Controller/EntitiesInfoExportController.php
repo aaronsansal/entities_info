@@ -145,7 +145,7 @@ class EntitiesInfoExportController extends ControllerBase {
           $field['required'],
           $field['description'],
         ];
-      }, $entity);
+      }, (array) $entity);
 
       return [
         '#type' => 'table',
