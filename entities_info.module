@@ -26,7 +26,7 @@ function entities_info_help($route_name, RouteMatchInterface $route_match) {
 /**
  * Implements hook_theme().
  */
-function entities_info_theme() {
+function entities_info_theme(): array {
   return [
     'entities_info' => [
       'render element' => 'children',
