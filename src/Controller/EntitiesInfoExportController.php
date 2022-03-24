@@ -164,11 +164,11 @@ class EntitiesInfoExportController extends ControllerBase {
    */
   public function getTableHeaders(): array {
     return [
-      'field_name' => t('Field name'),
-      'label' => t('Label'),
-      'field_type' => t('Field type'),
-      'required' => t('Required'),
-      'description' => t('Description'),
+      'field_name' => $this->t('Field name'),
+      'label' => $this->t('Label'),
+      'field_type' => $this->t('Field type'),
+      'required' => $this->t('Required'),
+      'description' => $this->t('Description'),
     ];
   }
 
