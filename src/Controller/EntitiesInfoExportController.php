@@ -3,9 +3,6 @@
 namespace Drupal\entities_info\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Entity\EntityFieldManagerInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\TempStore\PrivateTempStoreFactory;
 use Drupal\field\Entity\FieldConfig;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -19,21 +16,21 @@ class EntitiesInfoExportController extends ControllerBase {
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected EntityTypeManagerInterface $entityTypeManager;
+  protected $entityTypeManager;
 
   /**
    * Drupal\Core\Entity\EntityFieldManagerInterface definition.
    *
    * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
-  protected EntityFieldManagerInterface $entityFieldManager;
+  protected $entityFieldManager;
 
   /**
    * Drupal\Core\TempStore\PrivateTempStoreFactory definition.
    *
    * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
    */
-  private PrivateTempStoreFactory $tempStoreFactory;
+  private $tempStoreFactory;
 
   /**
    * {@inheritdoc}
