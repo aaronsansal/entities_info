@@ -19,7 +19,7 @@ class ExportPdfController extends ControllerBase {
    *
    * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
    */
-  private PrivateTempStoreFactory $tempStoreFactory;
+  private $tempStoreFactory;
 
   /**
    * {@inheritdoc}
