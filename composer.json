@@ -1,7 +1,7 @@
 {
     "name": "drupal/entities_info",
     "type": "drupal-module",
-    "description": "Generate information about entities to export it.",
+    "description": "Generate information about entities to export.",
     "keywords": [
         "Drupal",
         "Entities",
