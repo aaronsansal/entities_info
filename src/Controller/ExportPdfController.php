@@ -4,7 +4,6 @@ namespace Drupal\entities_info\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Render\Markup;
-use Drupal\Core\TempStore\PrivateTempStoreFactory;
 use Mpdf\Mpdf;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -22,11 +21,27 @@ class ExportPdfController extends ControllerBase {
   private $tempStoreFactory;
 
   /**
+   * Drupal\Core\Render\RendererInterface definition.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  private $renderer;
+
+  /**
+   * Drupal\Core\Extension\ModuleHandler definition.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandler
+   */
+  protected $moduleHandler;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container): ExportPdfController {
     $instance = parent::create($container);
     $instance->tempStoreFactory = $container->get('tempstore.private');
+    $instance->renderer = $container->get('renderer');
+    $instance->moduleHandler = $container->get('module_handler');
     return $instance;
   }
 
@@ -37,6 +52,7 @@ class ExportPdfController extends ControllerBase {
    *   Return File download.
    *
    * @throws \Mpdf\MpdfException
+   * @throws \Exception
    */
   public function exportPdf(): BinaryFileResponse {
 
@@ -48,8 +64,13 @@ class ExportPdfController extends ControllerBase {
       'Content-Disposition' => 'attachment;filename="download"',
     ];
 
+    $modulePath = $this->moduleHandler->getModule('entities_info')->getPath();
+    $stylesheetFile = $modulePath . "/css/tables.css";
+    $stylesheet = file_get_contents($stylesheetFile);
+
     $mpdf = new Mpdf(['tempDir' => 'sites/default/files']);
-    $mpdf->WriteHTML(Markup::create(render($tables)));
+    $mpdf->WriteHTML($stylesheet, 1);
+    $mpdf->WriteHTML(Markup::create($this->renderer->render($tables)));
     $file = $mpdf->Output("entities_info.pdf", 'D');
 
     return new BinaryFileResponse($file, 200, $headers, TRUE);
