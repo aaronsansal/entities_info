@@ -79,7 +79,7 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
       if (!$fields) {
         return FALSE;
       }
-      return $this->getFieldValues($fields);
+      return $this->getFieldInfo($fields);
     }, $entitiesInfoValues);
   }
 
@@ -92,15 +92,24 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
    * @return array
    *    Array with field information.
    */
-  protected function getFieldValues($fields): array {
+  protected function getFieldInfo($fields): array {
     return array_map(function ($field) {
       if (!($field instanceof FieldConfig)) {
         return $field;
       }
+
+      $fieldType = $field->getType();
+      if ($fieldType == 'entity_reference') {
+        $settings = $field->getSettings();
+        $target_bundle = array_values($settings['handler_settings']['target_bundles']);
+        $value = $fieldType . ':' . $settings['target_type'] . ':' . $target_bundle[0];
+        $fieldType = $value;
+      }
+
       return [
         'field_name' => $field->getName(),
         'label' => $field->getLabel(),
-        'field_type' => $field->getType(),
+        'field_type' => $fieldType,
         'required' => $field->isRequired() == 1 ? t("Yes") : t("No"),
         'description' => $field->getDescription(),
       ];
