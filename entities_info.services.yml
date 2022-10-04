@@ -1,0 +1,7 @@
+services:
+  logger.channel.entities_info:
+    parent: logger.channel_base
+    arguments: ['entities_info']
+  entities_info.manager:
+    class: Drupal\entities_info\EntitiesInfoManager
+    arguments: ['@entity_type.manager', '@entity_field.manager', '@tempstore.private']

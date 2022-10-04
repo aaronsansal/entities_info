@@ -1,6 +1,7 @@
 <div class="entities-info">
   {% for table in tables %}
     <h3>{{ table['#name'] }}</h3>
+    <h4>{{ table['#count'] }}</h4>
     {{ table }}
   {% endfor %}
 </div>
