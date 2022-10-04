@@ -101,9 +101,12 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
       $fieldType = $field->getType();
       if ($fieldType == 'entity_reference') {
         $settings = $field->getSettings();
-        $target_bundle = array_values($settings['handler_settings']['target_bundles']);
-        $value = $fieldType . ':' . $settings['target_type'] . ':' . $target_bundle[0];
-        $fieldType = $value;
+        $target_bundle = $settings['handler_settings']['target_bundles'];
+
+        if ($target_bundle != NULL) {
+          $target_bundle = array_values($target_bundle);
+          $fieldType = $fieldType . ':' . $settings['target_type'] . ':' . $target_bundle[0];
+        }
       }
 
       return [
