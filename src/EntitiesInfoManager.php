@@ -72,11 +72,9 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
       $entity_id_of = $this->entityTypeManager->getDefinition($entity_id)->getBundleOf();
       $entity_id = $entity_id_of ?: $entity_id;
 
-      $count = $this->getCountBundle($entity_id, $bundle);
-
       $fields = $this->entityFieldManager->getFieldDefinitions($entity_id, $bundle);
       $fields = array_filter($fields, fn($field) => $field instanceof FieldConfig);
-      $fields['count'] = $count;
+      $fields['count'] =  $this->getCountBundle($entity_id, $bundle);
 
       if (!$fields) {
         return FALSE;
