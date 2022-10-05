@@ -97,7 +97,7 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
       if (!($field instanceof FieldConfig)) {
         return $field;
       }
-
+      //TODO: Refactor
       $fieldType = $field->getType();
       if ($fieldType == 'entity_reference') {
         $settings = $field->getSettings();
@@ -109,12 +109,24 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
         }
       }
 
+      $entity = $field->getTargetEntityTypeId();
+      $bundle = $field->getTargetBundle();
+      $name = $field->getName();
+      $entity_keys = $this->entityTypeManager->getStorage($entity)->getEntityType()->get('entity_keys');
+
+      $count = $this->entityTypeManager->getStorage($entity)->getQuery()
+        ->condition($entity_keys['bundle'], $bundle)
+        ->condition($name, NULL, 'IS NOT NULL')
+        ->count()
+        ->execute();
+
       return [
         'field_name' => $field->getName(),
         'label' => $field->getLabel(),
         'field_type' => $fieldType,
         'required' => $field->isRequired() == 1 ? t("Yes") : t("No"),
         'description' => $field->getDescription(),
+        'count_used' => $count,
       ];
     }, $fields);
   }
@@ -145,6 +157,7 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
           $field['field_type'],
           $field['required'],
           $field['description'],
+          $field['count_used'],
         ];
       }, (array) $entity);
 
@@ -182,6 +195,7 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
       'field_type' => t('Field type'),
       'required' => t('Required'),
       'description' => t('Description'),
+      'count_used' => t('Count field use'),
     ];
   }
 
