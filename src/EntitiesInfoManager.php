@@ -162,8 +162,9 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
    * {@inheritdoc}
    */
   public function getCountBundle($entity, $bundle) {
+    $entity_keys = $this->entityTypeManager->getStorage($entity)->getEntityType()->get('entity_keys');
     return $this->entityTypeManager->getStorage($entity)->getQuery()
-      ->condition('type', $bundle)
+      ->condition($entity_keys['bundle'], $bundle)
       ->count()
       ->execute();
   }
