@@ -68,7 +68,7 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
   public function getEntitiesFields(array $entitiesInfoValues): array {
     return array_map(function ($item) {
 
-      [$bundle, $entity_id] = explode('-', $item);
+      [$bundle, $entity_id] = explode('---', $item);
       $entity_id_of = $this->entityTypeManager->getDefinition($entity_id)->getBundleOf();
       $entity_id = $entity_id_of ?: $entity_id;
 
@@ -135,19 +135,20 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
    * {@inheritdoc}
    */
   public function createTables(array $entities): array {
-    return array_map(function ($index, $entity) {
+    return array_map(function ($index, array $entity) {
 
-      [$bundle, $entity_id] = explode('-', $index);
+      [$bundle, $entity_id] = explode('---', $index);
       $label = $this->entityTypeManager->getStorage($entity_id)->load($bundle)->label();
+      $count = t('Count') . ' ' . t('items') . ': ' . $entity['count'];
 
-      if (!$entity) {
+      if (count($entity) === 1 && array_key_exists('count', $entity)) {
         return [
           '#name' => $label,
+          '#count' => $count,
           '#markup' => '<p>' . t('There is not fields created.') . '</p>',
         ];
       }
 
-      $count = t('Count') . ' ' . t('items') . ': ' . $entity['count'];
       unset($entity['count']);
 
       $rows = array_map(function ($field) {
