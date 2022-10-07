@@ -201,6 +201,9 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   protected function getCountField(FieldConfig $field) {
+    if ($field->getType() == 'field_menu') {
+      return '';
+    }
     $entity = $field->getTargetEntityTypeId();
     $bundle = $field->getTargetBundle();
     $name = $field->getName();
