@@ -91,34 +91,18 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
    *
    * @return array
    *    Array with field information.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   protected function getFieldInfo($fields): array {
     return array_map(function ($field) {
       if (!($field instanceof FieldConfig)) {
         return $field;
       }
-      //TODO: Refactor
-      $fieldType = $field->getType();
-      if ($fieldType == 'entity_reference') {
-        $settings = $field->getSettings();
-        $target_bundle = $settings['handler_settings']['target_bundles'];
 
-        if ($target_bundle != NULL) {
-          $target_bundle = array_values($target_bundle);
-          $fieldType = $fieldType . ':' . $settings['target_type'] . ':' . $target_bundle[0];
-        }
-      }
-
-      $entity = $field->getTargetEntityTypeId();
-      $bundle = $field->getTargetBundle();
-      $name = $field->getName();
-      $entity_keys = $this->entityTypeManager->getStorage($entity)->getEntityType()->get('entity_keys');
-
-      $count = $this->entityTypeManager->getStorage($entity)->getQuery()
-        ->condition($entity_keys['bundle'], $bundle)
-        ->condition($name, NULL, 'IS NOT NULL')
-        ->count()
-        ->execute();
+      $fieldType = $this->getFieldType($field);
+      $count = $this->getCountField($field);
 
       return [
         'field_name' => $field->getName(),
@@ -150,17 +134,7 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
       }
 
       unset($entity['count']);
-
-      $rows = array_map(function ($field) {
-        return [
-          $field['field_name'],
-          $field['label'],
-          $field['field_type'],
-          $field['required'],
-          $field['description'],
-          $field['count_used'],
-        ];
-      }, (array) $entity);
+      $rows = $this->getTableRows($entity);
 
       return [
         '#type' => 'table',
@@ -198,6 +172,63 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
       'description' => t('Description'),
       'count_used' => t('Count field use'),
     ];
+  }
+
+  /**
+   * @param \Drupal\field\Entity\FieldConfig $field
+   *
+   * @return string
+   */
+  protected function getFieldType(FieldConfig $field): string {
+    $fieldType = $field->getType();
+    if ($fieldType != 'entity_reference') {
+      return $fieldType;
+    }
+
+    $settings = $field->getSettings();
+    $target_bundle = $settings['handler_settings']['target_bundles'];
+
+    if ($target_bundle == NULL) {
+      return $fieldType;
+    }
+
+    $target_bundle = array_values($target_bundle);
+    return $fieldType . ':' . $settings['target_type'] . ':' . $target_bundle[0];
+  }
+
+  /**
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  protected function getCountField(FieldConfig $field) {
+    $entity = $field->getTargetEntityTypeId();
+    $bundle = $field->getTargetBundle();
+    $name = $field->getName();
+    $entity_keys = $this->entityTypeManager->getStorage($entity)->getEntityType()->get('entity_keys');
+
+    return $this->entityTypeManager->getStorage($entity)->getQuery()
+      ->condition($entity_keys['bundle'], $bundle)
+      ->condition($name, NULL, 'IS NOT NULL')
+      ->count()
+      ->execute();
+  }
+
+  /**
+   * @param $entity
+   *
+   * @return array
+   */
+  protected function getTableRows($entity): array {
+    return array_map(function ($field) {
+      return [
+        $field['field_name'],
+        $field['label'],
+        $field['field_type'],
+        $field['required'],
+        $field['description'],
+        $field['count_used'],
+      ];
+    }, (array) $entity);
   }
 
 }
