@@ -1,13 +1,15 @@
 <?php
 
 namespace Drupal\entities_info;
+
+use Drupal\Core\TempStore\PrivateTempStore;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\TempStore\PrivateTempStoreFactory;
 use Drupal\field\Entity\FieldConfig;
 
 /**
- * Class EntitiesInfoManager.
+ * Manages entities info to export.
  */
 class EntitiesInfoManager implements EntitiesInfoManagerInterface {
 
@@ -51,14 +53,14 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getEntitiesInfoTempstore(): \Drupal\Core\TempStore\PrivateTempStore {
+  public function getEntitiesInfoTempstore(): PrivateTempStore {
     return $this->tempstorePrivate->get('entities_info_export');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getValues($entitiesInfoTempstore) {
+  public function getValues(PrivateTempStore $entitiesInfoTempstore): mixed {
     return $entitiesInfoTempstore->get('values');
   }
 
@@ -68,13 +70,13 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
   public function getEntitiesFields(array $entitiesInfoValues): array {
     return array_map(function ($item) {
 
-      [$bundle, $entity_id] = explode('---', $item);
+      [$bundle, $entity_id] = explode('-ei-', $item);
       $entity_id_of = $this->entityTypeManager->getDefinition($entity_id)->getBundleOf();
       $entity_id = $entity_id_of ?: $entity_id;
 
       $fields = $this->entityFieldManager->getFieldDefinitions($entity_id, $bundle);
       $fields = array_filter($fields, fn($field) => $field instanceof FieldConfig);
-      $fields['count'] =  $this->getCountBundle($entity_id, $bundle);
+      $fields['count'] = $this->getCountBundle($entity_id, $bundle);
 
       if (!$fields) {
         return FALSE;
@@ -86,16 +88,16 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
   /**
    * Get field name, label, type, required and description.
    *
-   * @param $fields
+   * @param array $fields
    *   Fields.
    *
    * @return array
-   *    Array with field information.
+   *   Array with field information.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  protected function getFieldInfo($fields): array {
+  protected function getFieldInfo(array $fields): array {
     return array_map(function ($field) {
       if (!($field instanceof FieldConfig)) {
         return $field;
@@ -120,10 +122,10 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
    */
   public function createTables(array $entities): array {
     return array_map(function ($index, array $entity) {
-
-      [$bundle, $entity_id] = explode('---', $index);
+      // @todo Create service with tables creation and remove -ei- from entities info manager and pass two parameters
+      [$bundle, $entity_id] = explode('-ei-', $index);
       $label = $this->entityTypeManager->getStorage($entity_id)->load($bundle)->label();
-      $count = t('Count') . ' ' . t('items') . ': ' . $entity['count'];
+      $count = t('Count items:') . $entity['count'];
 
       if (count($entity) === 1 && array_key_exists('count', $entity)) {
         return [
@@ -149,7 +151,7 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCountBundle($entity, $bundle) {
+  public function getCountBundle(string $entity, string $bundle): array|int {
     $entity_keys = $this->entityTypeManager->getStorage($entity)->getEntityType()->get('entity_keys');
     return $this->entityTypeManager->getStorage($entity)->getQuery()
       ->condition($entity_keys['bundle'], $bundle)
@@ -175,9 +177,15 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
   }
 
   /**
+   * Get the field type.
+   *
+   * If the type is entity reference, add target type and target bundle.
+   *
    * @param \Drupal\field\Entity\FieldConfig $field
+   *   Field config.
    *
    * @return string
+   *   Field type.
    */
   protected function getFieldType(FieldConfig $field): string {
     $fieldType = $field->getType();
@@ -197,10 +205,9 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
   }
 
   /**
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * {@inheritdoc}
    */
-  protected function getCountField(FieldConfig $field) {
+  public function getCountField(FieldConfig $field): string {
     if ($field->getType() == 'field_menu') {
       return '';
     }
@@ -217,11 +224,15 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
   }
 
   /**
-   * @param $entity
+   * Return table rows with field info.
+   *
+   * @param array $entity
+   *   Entity with field configs.
    *
    * @return array
+   *   Array with field info.
    */
-  protected function getTableRows($entity): array {
+  protected function getTableRows(array $entity): array {
     return array_map(function ($field) {
       return [
         $field['field_name'],
@@ -231,7 +242,7 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
         $field['description'],
         $field['count_used'],
       ];
-    }, (array) $entity);
+    }, $entity);
   }
 
 }

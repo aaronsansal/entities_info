@@ -2,8 +2,11 @@
 
 namespace Drupal\entities_info;
 
+use Drupal\Core\TempStore\PrivateTempStore;
+use Drupal\field\Entity\FieldConfig;
+
 /**
- * Interface EntitiesInfoManagerInterface.
+ * Provides an interface for entities info manager.
  */
 interface EntitiesInfoManagerInterface {
 
@@ -13,18 +16,18 @@ interface EntitiesInfoManagerInterface {
    * @return \Drupal\Core\TempStore\PrivateTempStore
    *   PrivateTempStore of entities info export.
    */
-  public function getEntitiesInfoTempstore();
+  public function getEntitiesInfoTempstore(): PrivateTempStore;
 
   /**
    * Get values from tempstore entities info export.
    *
-   * @param $entitiesInfoTempstore
+   * @param \Drupal\Core\TempStore\PrivateTempStore $entitiesInfoTempstore
    *   PrivateTempStore of entities info export.
    *
    * @return mixed
    *   Values from PrivateTempStore entities info export.
    */
-  public function getValues($entitiesInfoTempstore);
+  public function getValues(PrivateTempStore $entitiesInfoTempstore): mixed;
 
   /**
    * Get FieldConfigs created from entities and items count.
@@ -57,9 +60,9 @@ interface EntitiesInfoManagerInterface {
   /**
    * Number of elements created by bundle.
    *
-   * @param $entity
-   *   Entity.
-   * @param $bundle
+   * @param string $entity
+   *   Entity type.
+   * @param string $bundle
    *   Bundle.
    *
    * @return array|int
@@ -68,6 +71,20 @@ interface EntitiesInfoManagerInterface {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function getCountBundle($entity, $bundle);
+  public function getCountBundle(string $entity, string $bundle): int|array;
+
+  /**
+   * Number of fields used.
+   *
+   * @param \Drupal\field\Entity\FieldConfig $field
+   *   Field.
+   *
+   * @return string
+   *   Number of elements.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function getCountField(FieldConfig $field): string;
 
 }

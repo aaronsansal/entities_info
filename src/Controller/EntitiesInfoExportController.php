@@ -3,7 +3,6 @@
 namespace Drupal\entities_info\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\field\Entity\FieldConfig;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

@@ -88,7 +88,7 @@ class EntitiesInfoExportForm extends FormBase {
         $id = $item->id();
         $label = $item->label();
 
-        $form['configuration_' . $entity_id][$id . '---' . $entity_id] = [
+        $form['configuration_' . $entity_id][$id . '-ei-' . $entity_id] = [
           '#type' => 'checkbox',
           '#title' => $label . ' (' . $id . ')',
           '#weight' => '0',
