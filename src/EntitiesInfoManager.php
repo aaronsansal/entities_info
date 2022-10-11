@@ -2,10 +2,8 @@
 
 namespace Drupal\entities_info;
 
-use Drupal\Core\TempStore\PrivateTempStore;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
-use Drupal\Core\TempStore\PrivateTempStoreFactory;
 use Drupal\field\Entity\FieldConfig;
 
 /**
@@ -28,61 +26,32 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
   protected $entityFieldManager;
 
   /**
-   * Drupal\Core\TempStore\PrivateTempStoreFactory definition.
-   *
-   * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
-   */
-  protected $tempstorePrivate;
-
-  /**
    * Constructs a new Entity info manager.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   Entity type manager.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   Entity field manager.
-   * @param \Drupal\Core\TempStore\PrivateTempStoreFactory $tempstore_private
-   *   Private tempstore factory.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, PrivateTempStoreFactory $tempstore_private) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
-    $this->tempstorePrivate = $tempstore_private;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getEntitiesInfoTempstore(): PrivateTempStore {
-    return $this->tempstorePrivate->get('entities_info_export');
-  }
+  public function getEntityFields(string $entity_id, string $bundle): array|bool {
+    $entity_id_of = $this->entityTypeManager->getDefinition($entity_id)->getBundleOf();
+    $entity_id = $entity_id_of ?: $entity_id;
+    $fields = $this->entityFieldManager->getFieldDefinitions($entity_id, $bundle);
+    $fields = array_filter($fields, fn($field) => $field instanceof FieldConfig);
+    $fields['count'] = $this->getCountBundle($entity_id, $bundle);
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getValues(PrivateTempStore $entitiesInfoTempstore): mixed {
-    return $entitiesInfoTempstore->get('values');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getEntitiesFields(array $entitiesInfoValues): array {
-    return array_map(function ($item) {
-
-      [$bundle, $entity_id] = explode('-ei-', $item);
-      $entity_id_of = $this->entityTypeManager->getDefinition($entity_id)->getBundleOf();
-      $entity_id = $entity_id_of ?: $entity_id;
-
-      $fields = $this->entityFieldManager->getFieldDefinitions($entity_id, $bundle);
-      $fields = array_filter($fields, fn($field) => $field instanceof FieldConfig);
-      $fields['count'] = $this->getCountBundle($entity_id, $bundle);
-
-      if (!$fields) {
-        return FALSE;
-      }
-      return $this->getFieldInfo($fields);
-    }, $entitiesInfoValues);
+    if (!$fields) {
+      return FALSE;
+    }
+    return $this->getFieldInfo($fields);
   }
 
   /**
@@ -120,60 +89,12 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function createTables(array $entities): array {
-    return array_map(function ($index, array $entity) {
-      // @todo Create service with tables creation and remove -ei- from entities info manager and pass two parameters
-      [$bundle, $entity_id] = explode('-ei-', $index);
-      $label = $this->entityTypeManager->getStorage($entity_id)->load($bundle)->label();
-      $count = t('Count items:') . $entity['count'];
-
-      if (count($entity) === 1 && array_key_exists('count', $entity)) {
-        return [
-          '#name' => $label,
-          '#count' => $count,
-          '#markup' => '<p>' . t('There is not fields created.') . '</p>',
-        ];
-      }
-
-      unset($entity['count']);
-      $rows = $this->getTableRows($entity);
-
-      return [
-        '#type' => 'table',
-        '#header' => $this->getTableHeaders(),
-        '#rows' => $rows,
-        '#name' => $label,
-        '#count' => $count,
-      ];
-    }, array_keys($entities), $entities);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getCountBundle(string $entity, string $bundle): array|int {
     $entity_keys = $this->entityTypeManager->getStorage($entity)->getEntityType()->get('entity_keys');
     return $this->entityTypeManager->getStorage($entity)->getQuery()
       ->condition($entity_keys['bundle'], $bundle)
       ->count()
       ->execute();
-  }
-
-  /**
-   * Table headers.
-   *
-   * @return array
-   *   Field information labels.
-   */
-  protected function getTableHeaders(): array {
-    return [
-      'field_name' => t('Field name'),
-      'label' => t('Label'),
-      'field_type' => t('Field type'),
-      'required' => t('Required'),
-      'description' => t('Description'),
-      'count_used' => t('Count field use'),
-    ];
   }
 
   /**
@@ -221,28 +142,6 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
       ->condition($name, NULL, 'IS NOT NULL')
       ->count()
       ->execute();
-  }
-
-  /**
-   * Return table rows with field info.
-   *
-   * @param array $entity
-   *   Entity with field configs.
-   *
-   * @return array
-   *   Array with field info.
-   */
-  protected function getTableRows(array $entity): array {
-    return array_map(function ($field) {
-      return [
-        $field['field_name'],
-        $field['label'],
-        $field['field_type'],
-        $field['required'],
-        $field['description'],
-        $field['count_used'],
-      ];
-    }, $entity);
   }
 
 }

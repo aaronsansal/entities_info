@@ -2,7 +2,6 @@
 
 namespace Drupal\entities_info;
 
-use Drupal\Core\TempStore\PrivateTempStore;
 use Drupal\field\Entity\FieldConfig;
 
 /**
@@ -11,51 +10,20 @@ use Drupal\field\Entity\FieldConfig;
 interface EntitiesInfoManagerInterface {
 
   /**
-   * Get private tempstore for entities info export.
+   * Get FieldConfigs created from entity and items count.
    *
-   * @return \Drupal\Core\TempStore\PrivateTempStore
-   *   PrivateTempStore of entities info export.
-   */
-  public function getEntitiesInfoTempstore(): PrivateTempStore;
-
-  /**
-   * Get values from tempstore entities info export.
+   * @param string $entity_id
+   *   Entity id.
+   * @param string $bundle
+   *   Bundle id.
    *
-   * @param \Drupal\Core\TempStore\PrivateTempStore $entitiesInfoTempstore
-   *   PrivateTempStore of entities info export.
-   *
-   * @return mixed
-   *   Values from PrivateTempStore entities info export.
-   */
-  public function getValues(PrivateTempStore $entitiesInfoTempstore): mixed;
-
-  /**
-   * Get FieldConfigs created from entities and items count.
-   *
-   * @param array $entitiesInfoValues
-   *   Entities.
-   *
-   * @return array
+   * @return array|bool
    *   Array with fields by entity.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function getEntitiesFields(array $entitiesInfoValues): array;
-
-  /**
-   * Create table render array for every entity.
-   *
-   * @param array $entities
-   *   Entities with fields.
-   *
-   * @return array|array[]
-   *   Table render array for every entity.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-   */
-  public function createTables(array $entities): array;
+  public function getEntityFields(string $entity_id, string $bundle): array|bool;
 
   /**
    * Number of elements created by bundle.

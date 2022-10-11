@@ -18,11 +18,27 @@ class EntitiesInfoExportController extends ControllerBase {
   protected $entityInfoManager;
 
   /**
+   * Drupal\entities_info\EntitiesInfoGenerateTablesInterface definition.
+   *
+   * @var \Drupal\entities_info\EntitiesInfoGenerateTablesInterface
+   */
+  protected $entityInfoGenerateTables;
+
+  /**
+   * Drupal\Core\TempStore\PrivateTempStoreFactory definition.
+   *
+   * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
+   */
+  private $tempStoreFactory;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container): EntitiesInfoExportController {
     $instance = parent::create($container);
     $instance->entityInfoManager = $container->get('entities_info.manager');
+    $instance->entityInfoGenerateTables = $container->get('entities_info.generate_tables');
+    $instance->tempStoreFactory = $container->get('tempstore.private');
     return $instance;
   }
 
@@ -38,17 +54,25 @@ class EntitiesInfoExportController extends ControllerBase {
    */
   public function export(): array {
 
-    $entitiesInfoTempstore = $this->entityInfoManager->getEntitiesInfoTempstore();
-    $entitiesInfoValues = $this->entityInfoManager->getValues($entitiesInfoTempstore);
-    $entitiesFields = $this->entityInfoManager->getEntitiesFields($entitiesInfoValues);
-    $tables = $this->entityInfoManager->createTables($entitiesFields);
+    $tempstore = $this->tempStoreFactory->get('entities_info_export');
+    $entitiesInfoValues = $tempstore->get('values');
+
+    $entitiesFields = array_map(function ($item) {
+      [$bundle, $entity_id] = explode('-ei-', $item);
+      return $this->entityInfoManager->getEntityFields($entity_id, $bundle);
+    }, $entitiesInfoValues);
+
+    $tables = array_map(function ($index, array $fields) {
+      [$bundle, $entity_id] = explode('-ei-', $index);
+      return $this->entityInfoGenerateTables->createTable($entity_id, $bundle, $fields);
+    }, array_keys($entitiesFields), $entitiesFields);
 
     $export = [
       '#theme' => 'entities_info',
       '#tables' => $tables,
     ];
 
-    $entitiesInfoTempstore->set('export', $export);
+    $tempstore->set('export', $export);
 
     return $export;
   }
