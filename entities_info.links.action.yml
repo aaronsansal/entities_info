@@ -2,4 +2,4 @@ entities_info.export_pdf:
   route_name: entities_info.export_pdf
   title: 'Export to PDF'
   appears_on:
-    - entities_info.entities_info_export_controller_export
+    - entities_info.export_controller

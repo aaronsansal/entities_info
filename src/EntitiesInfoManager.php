@@ -47,6 +47,7 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
     $fields = $this->entityFieldManager->getFieldDefinitions($entity_id, $bundle);
     $fields = array_filter($fields, fn($field) => $field instanceof FieldConfig);
     $fields['count'] = $this->getCountBundle($entity_id, $bundle);
+    $fields['label'] = $this->entityTypeManager->getStorage($entity_id)->load($bundle)->label();
 
     if (!$fields) {
       return FALSE;

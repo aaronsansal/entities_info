@@ -56,16 +56,8 @@ class EntitiesInfoExportController extends ControllerBase {
 
     $tempstore = $this->tempStoreFactory->get('entities_info_export');
     $entitiesInfoValues = $tempstore->get('values');
-
-    $entitiesFields = array_map(function ($item) {
-      [$bundle, $entity_id] = explode('-ei-', $item);
-      return $this->entityInfoManager->getEntityFields($entity_id, $bundle);
-    }, $entitiesInfoValues);
-
-    $tables = array_map(function ($index, array $fields) {
-      [$bundle, $entity_id] = explode('-ei-', $index);
-      return $this->entityInfoGenerateTables->createTable($entity_id, $bundle, $fields);
-    }, array_keys($entitiesFields), $entitiesFields);
+    $tableType = $tempstore->get('table_type');
+    $tables = $this->getExportData($tableType, $entitiesInfoValues);
 
     $export = [
       '#theme' => 'entities_info',
@@ -75,6 +67,32 @@ class EntitiesInfoExportController extends ControllerBase {
     $tempstore->set('export', $export);
 
     return $export;
+  }
+
+  /**
+   * @param mixed $tableType
+   * @param mixed $entitiesInfoValues
+   * @return array|array[]|\array[][]|false[]
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  protected function getExportData(mixed $tableType, mixed $entitiesInfoValues): array {
+    $tables = [];
+
+    if ($tableType == 'entity_fields') {
+      $entitiesFields = array_map(function ($item) {
+        [$bundle, $entity_id] = explode('-ei-', $item);
+        return $this->entityInfoManager->getEntityFields($entity_id, $bundle);
+      }, $entitiesInfoValues);
+
+      $tables = array_map(fn($fields) => $this->entityInfoGenerateTables->createTableEntityFields($fields), $entitiesFields);
+    }
+
+    if ($tableType == 'entities') {
+
+    }
+
+    return $tables;
   }
 
 }

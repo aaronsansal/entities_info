@@ -2,38 +2,18 @@
 
 namespace Drupal\entities_info;
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-
 /**
  * Service description.
  */
 class EntitiesInfoGenerateTables implements EntitiesInfoGenerateTablesInterface {
 
   /**
-   * The entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
-   * Constructs a GenerateTables object.
-   *
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity type manager.
-   */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager) {
-    $this->entityTypeManager = $entity_type_manager;
-  }
-
-  /**
    * {@inheritdoc}
    */
-  public function createTable(string $entity_id, string $bundle, array $fields): array {
-    $label = $this->entityTypeManager->getStorage($entity_id)->load($bundle)->label();
+  public function createTableEntityFields(array $fields): array {
     $count = t('Count items:') . $fields['count'];
-
-    if (count($fields) === 1 && array_key_exists('count', $fields)) {
+    $label = $fields['label'];
+    if (count($fields) === 2 && array_key_exists('count', $fields)) {
       return [
         '#name' => $label,
         '#count' => $count,
@@ -41,7 +21,7 @@ class EntitiesInfoGenerateTables implements EntitiesInfoGenerateTablesInterface 
       ];
     }
 
-    unset($fields['count']);
+    unset($fields['count'], $fields['label']);
     $rows = $this->getTableRows($fields);
 
     return [

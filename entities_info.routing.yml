@@ -9,7 +9,7 @@ entities_info.entities_info_export_form:
   options:
     _admin_route: TRUE
 
-entities_info.entities_info_export_controller_export:
+entities_info.export_controller:
   path: '/entities_info/export'
   defaults:
     _controller: '\Drupal\entities_info\Controller\EntitiesInfoExportController::export'
