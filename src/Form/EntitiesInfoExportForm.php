@@ -49,7 +49,7 @@ class EntitiesInfoExportForm extends FormBase {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
-    $entities = $this->entityInfoManager->getContentEntities();
+    $entities = $this->entityInfoManager->getFieldConfigEntities();
 
     foreach ($entities as $entity) {
       $entity_id = $entity->id();

@@ -12,7 +12,7 @@ interface EntitiesInfoManagerInterface {
   /**
    * @return array
    */
-  public function getContentEntities(): array;
+  public function getFieldConfigEntities(): array;
 
   /**
    * @param string $entity_id

@@ -41,7 +41,7 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getContentEntities(): array {
+  public function getFieldConfigEntities(): array {
     $entities = $this->entityTypeManager->getDefinitions();
     $fields_map = array_keys($this->entityFieldManager->getFieldMap());
     $entities = array_filter($entities, fn($entity) => $entity->getGroup() != 'content');
