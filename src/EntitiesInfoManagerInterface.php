@@ -10,6 +10,19 @@ use Drupal\field\Entity\FieldConfig;
 interface EntitiesInfoManagerInterface {
 
   /**
+   * @return array
+   */
+  public function getContentEntities(): array;
+
+  /**
+   * @param string $entity_id
+   * @return array
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function getEntityBundles(string $entity_id): array;
+
+  /**
    * Get FieldConfigs created from entity and items count.
    *
    * @param string $entity_id

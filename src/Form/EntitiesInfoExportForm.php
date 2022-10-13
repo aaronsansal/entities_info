@@ -12,20 +12,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class EntitiesInfoExportForm extends FormBase {
 
   /**
-   * Drupal\Core\Entity\EntityTypeManagerInterface definition.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
-   * Drupal\Core\Entity\EntityFieldManagerInterface definition.
-   *
-   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
-   */
-  protected $entityFieldManager;
-
-  /**
    * Drupal\Core\TempStore\PrivateTempStoreFactory definition.
    *
    * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
@@ -33,13 +19,19 @@ class EntitiesInfoExportForm extends FormBase {
   private $tempStoreFactory;
 
   /**
+   * Drupal\entities_info\EntitiesInfoManagerInterface definition.
+   *
+   * @var \Drupal\entities_info\EntitiesInfoManagerInterface
+   */
+  protected $entityInfoManager;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container): EntitiesInfoExportForm {
     $instance = parent::create($container);
-    $instance->entityTypeManager = $container->get('entity_type.manager');
-    $instance->entityFieldManager = $container->get('entity_field.manager');
     $instance->tempStoreFactory = $container->get('tempstore.private');
+    $instance->entityInfoManager = $container->get('entities_info.manager');
     return $instance;
   }
 
@@ -57,25 +49,12 @@ class EntitiesInfoExportForm extends FormBase {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
-
-    $entities = $this->entityTypeManager->getDefinitions();
-    $fields_map = array_keys($this->entityFieldManager->getFieldMap());
+    $entities = $this->entityInfoManager->getContentEntities();
 
     foreach ($entities as $entity) {
-
-      if ($entity->getGroup() == 'content') {
-        continue;
-      }
-
       $entity_id = $entity->id();
-      $bundle_of = $entity->getBundleOf();
-
-      if (!in_array($entity_id, $fields_map) && !in_array($bundle_of, $fields_map)) {
-        continue;
-      }
-
       $bundle = $entity->getBundleLabel();
-      $storage = $this->entityTypeManager->getStorage($entity_id)->loadMultiple();
+      $storage = $this->entityInfoManager->getEntityBundles($entity_id);
 
       $form['configuration_' . $entity_id] = [
         '#type' => 'details',
@@ -84,7 +63,6 @@ class EntitiesInfoExportForm extends FormBase {
       ];
 
       foreach ($storage as $item) {
-
         $id = $item->id();
         $label = $item->label();
 

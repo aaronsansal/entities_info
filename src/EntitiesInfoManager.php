@@ -41,17 +41,34 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
   /**
    * {@inheritdoc}
    */
+  public function getContentEntities(): array {
+    $entities = $this->entityTypeManager->getDefinitions();
+    $fields_map = array_keys($this->entityFieldManager->getFieldMap());
+    $entities = array_filter($entities, fn($entity) => $entity->getGroup() != 'content');
+
+    return array_filter($entities, fn($entity) => (
+      in_array($entity->id(), $fields_map) || in_array($entity->getBundleOf(), $fields_map)
+    ));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityBundles(string $entity_id): array {
+    return $this->entityTypeManager->getStorage($entity_id)->loadMultiple();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getEntityFields(string $entity_id, string $bundle): array|bool {
-    $entity_id_of = $this->entityTypeManager->getDefinition($entity_id)->getBundleOf();
-    $entity_id = $entity_id_of ?: $entity_id;
+    $label = $this->entityTypeManager->getStorage($entity_id)->load($bundle)->label();
+    $entity_id = $this->entityTypeManager->getDefinition($entity_id)->getBundleOf() ?: $entity_id;
     $fields = $this->entityFieldManager->getFieldDefinitions($entity_id, $bundle);
     $fields = array_filter($fields, fn($field) => $field instanceof FieldConfig);
     $fields['count'] = $this->getCountBundle($entity_id, $bundle);
-    $fields['label'] = $this->entityTypeManager->getStorage($entity_id)->load($bundle)->label();
+    $fields['label'] = $label;
 
-    if (!$fields) {
-      return FALSE;
-    }
     return $this->getFieldInfo($fields);
   }
 
