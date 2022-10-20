@@ -36,23 +36,7 @@ interface EntitiesInfoManagerInterface {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function getEntityFields(string $entity_id, string $bundle): array|bool;
-
-  /**
-   * Number of elements created by bundle.
-   *
-   * @param string $entity
-   *   Entity type.
-   * @param string $bundle
-   *   Bundle.
-   *
-   * @return array|int
-   *   Number of elements.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-   */
-  public function getCountBundle(string $entity, string $bundle): int|array;
+  public function getEntityFields(string $entity_id, string $bundle): array;
 
   /**
    * Number of fields used.
@@ -67,5 +51,21 @@ interface EntitiesInfoManagerInterface {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function getCountField(FieldConfig $field): string;
+
+  /**
+   * Number of elements created by bundle.
+   *
+   * @param string $entity
+   *   Entity type.
+   * @param string $bundle
+   *   Bundle.
+   *
+   * @return array
+   *   Number of elements.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function getCountBundle(string $entity, string $bundle): string;
 
 }

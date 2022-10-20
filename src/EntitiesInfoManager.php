@@ -61,7 +61,7 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getEntityFields(string $entity_id, string $bundle): array|bool {
+  public function getEntityFields(string $entity_id, string $bundle): array {
     $label = $this->entityTypeManager->getStorage($entity_id)->load($bundle)->label();
     $entity_id = $this->entityTypeManager->getDefinition($entity_id)->getBundleOf() ?: $entity_id;
     $fields = $this->entityFieldManager->getFieldDefinitions($entity_id, $bundle);
@@ -107,7 +107,7 @@ class EntitiesInfoManager implements EntitiesInfoManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCountBundle(string $entity, string $bundle): array|int {
+  public function getCountBundle(string $entity, string $bundle): string {
     $entity_keys = $this->entityTypeManager->getStorage($entity)->getEntityType()->get('entity_keys');
     return $this->entityTypeManager->getStorage($entity)->getQuery()
       ->condition($entity_keys['bundle'], $bundle)

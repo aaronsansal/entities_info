@@ -70,13 +70,13 @@ class EntitiesInfoExportController extends ControllerBase {
   }
 
   /**
-   * @param mixed $tableType
-   * @param mixed $entitiesInfoValues
+   * @param string $tableType
+   * @param array $entitiesInfoValues
    * @return array|array[]|\array[][]|false[]
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  protected function getExportData(mixed $tableType, mixed $entitiesInfoValues): array {
+  protected function getExportData(string $tableType, array $entitiesInfoValues): array {
     $tables = [];
 
     if ($tableType == 'entity_fields') {
