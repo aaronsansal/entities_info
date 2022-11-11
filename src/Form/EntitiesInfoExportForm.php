@@ -94,11 +94,11 @@ class EntitiesInfoExportForm extends FormBase {
     ];
 
     $form['table_type'] = [
-      '#type' => 'select',
-      '#options' => [
+      '#type' => 'hidden', //select
+      /*'#options' => [
         'entity_fields' => $this->t('Entity with fields'),
         'entities' => $this->t('Entities'),
-      ],
+      ],*/
       '#title' => $this->t('Table type'),
       '#default' => 'entity_fields',
     ];
@@ -131,7 +131,7 @@ class EntitiesInfoExportForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $results = $form_state->getValues();
     $tempstore = $this->tempStoreFactory->get('entities_info_export');
-    $tempstore->set('table_type', $results['table_type']);
+    $tempstore->set('table_type', 'entity_fields'); //$results['table_type']
 
     $values_selected = array_filter($results, fn($value) => $value === 1);
     $values_format = array_map(fn($index, $value) => $index, array_keys($values_selected), $values_selected);

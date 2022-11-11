@@ -68,7 +68,7 @@ class EntitiesInfoGenerateTables implements EntitiesInfoGenerateTablesInterface 
       'field_type' => t('Field type'),
       'required' => t('Required'),
       'description' => t('Description'),
-      'count_used' => t('Count field use'),
+      'count_used' => t('Count field used'),
     ];
   }
 

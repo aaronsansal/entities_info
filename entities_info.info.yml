@@ -1,5 +1,5 @@
 name: 'Entities Info'
 type: module
-description: 'Generate informartion about entities to export it.'
-core_version_requirement: ^8.8.0 || ^9
-package: 'Custom'
+description: 'Generate information about entities to export it.'
+core_version_requirement: ^9
+package: 'Development'
