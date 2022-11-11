@@ -1,5 +1,5 @@
 entities_info.entities_info_export_form:
-  path: '/entities_info'
+  path: '/admin/config/entities_info'
   defaults:
     _form: '\Drupal\entities_info\Form\EntitiesInfoExportForm'
     _title: 'Entities Info Export'
@@ -10,7 +10,7 @@ entities_info.entities_info_export_form:
     _admin_route: TRUE
 
 entities_info.export_controller:
-  path: '/entities_info/export'
+  path: '/admin/config/entities_info/export'
   defaults:
     _controller: '\Drupal\entities_info\Controller\EntitiesInfoExportController::export'
     _title: 'Entities info'
@@ -20,7 +20,7 @@ entities_info.export_controller:
     _admin_route: TRUE
 
 entities_info.export_pdf:
-  path: '/entities_info/export/pdf'
+  path: '/admin/config/entities_info/export/pdf'
   defaults:
     _controller: '\Drupal\entities_info\Controller\ExportPdfController::exportPdf'
     _title: 'exportPdf'
